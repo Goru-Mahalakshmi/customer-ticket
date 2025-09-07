@@ -12,7 +12,7 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationships
-    tickets = db.relationship('Ticket', backref='creator', lazy=True)
+    tickets = db.relationship('Ticket', foreign_keys='Ticket.user_id', backref='creator', lazy=True)
     assigned_tickets = db.relationship('Ticket', foreign_keys='Ticket.assigned_to', backref='assignee', lazy=True)
 
     def set_password(self, password):
