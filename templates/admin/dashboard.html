@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard</h1>
+    <div>
+        <a href="{{ url_for('admin.tickets') }}" class="btn btn-primary me-2">
+            <i class="fas fa-list me-1"></i>View All Tickets
+        </a>
+        <a href="{{ url_for('admin.reports') }}" class="btn btn-info">
+            <i class="fas fa-chart-bar me-1"></i>Reports
+        </a>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-2 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h3>{{ stats.total }}</h3>
+                <p class="mb-0">Total Tickets</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h3>{{ stats.open }}</h3>
+                <p class="mb-0">Open</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2 mb-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <h3>{{ stats.in_progress }}</h3>
+                <p class="mb-0">In Progress</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2 mb-3">
+        <div class="card bg-secondary text-white">
+            <div class="card-body text-center">
+                <h3>{{ stats.closed }}</h3>
+                <p class="mb-0">Closed</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2 mb-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body text-center">
+                <h3>{{ stats.unassigned }}</h3>
+                <p class="mb-0">Unassigned</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h3><a href="{{ url_for('admin.export_tickets') }}" class="text-white text-decoration-none">
+                    <i class="fas fa-download"></i>
+                </a></h3>
+                <p class="mb-0">Export CSV</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Tickets -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Recent Tickets</h5>
+        <a href="{{ url_for('admin.tickets') }}" class="btn btn-sm btn-outline-primary">View All</a>
+    </div>
+    <div class="card-body">
+        {% if recent_tickets %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Created By</th>
+                            <th>Assigned To</th>
+                            <th>Created</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ticket in recent_tickets %}
+                            <tr>
+                                <td>#{{ ticket.id }}</td>
+                                <td>{{ ticket.title[:50] }}{% if ticket.title|length > 50 %}...{% endif %}</td>
+                                <td>
+                                    {% if ticket.status == 'open' %}
+                                        <span class="badge bg-success">{{ ticket.status.title() }}</span>
+                                    {% elif ticket.status == 'in_progress' %}
+                                        <span class="badge bg-warning">In Progress</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ ticket.status.title() }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if ticket.priority == 'urgent' %}
+                                        <span class="badge bg-danger">{{ ticket.priority.title() }}</span>
+                                    {% elif ticket.priority == 'high' %}
+                                        <span class="badge bg-warning">{{ ticket.priority.title() }}</span>
+                                    {% else %}
+                                        <span class="badge bg-info">{{ ticket.priority.title() }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ ticket.creator.username }}</td>
+                                <td>{{ ticket.assignee.username if ticket.assignee else 'Unassigned' }}</td>
+                                <td>{{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    <a href="{{ url_for('admin.ticket_detail', id=ticket.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye me-1"></i>View
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-ticket-alt fa-3x text-muted mb-3"></i>
+                <h5>No tickets found</h5>
+                <p class="text-muted">No tickets have been created yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

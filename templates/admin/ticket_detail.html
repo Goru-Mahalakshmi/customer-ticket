@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <!-- Ticket Details -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">
+                    <i class="fas fa-ticket-alt me-2"></i>Ticket #{{ ticket.id }}: {{ ticket.title }}
+                </h4>
+                <div>
+                    {% if ticket.status == 'open' %}
+                        <span class="badge bg-success">{{ ticket.status.title() }}</span>
+                    {% elif ticket.status == 'in_progress' %}
+                        <span class="badge bg-warning">In Progress</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{{ ticket.status.title() }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Created By:</strong></div>
+                    <div class="col-sm-9">{{ ticket.creator.username }} ({{ ticket.creator.email }})</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Priority:</strong></div>
+                    <div class="col-sm-9">
+                        {% if ticket.priority == 'urgent' %}
+                            <span class="badge bg-danger">{{ ticket.priority.title() }}</span>
+                        {% elif ticket.priority == 'high' %}
+                            <span class="badge bg-warning">{{ ticket.priority.title() }}</span>
+                        {% else %}
+                            <span class="badge bg-info">{{ ticket.priority.title() }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Category:</strong></div>
+                    <div class="col-sm-9">{{ ticket.category.replace('_', ' ').title() }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Created:</strong></div>
+                    <div class="col-sm-9">{{ ticket.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Last Updated:</strong></div>
+                    <div class="col-sm-9">{{ ticket.updated_at.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Assigned To:</strong></div>
+                    <div class="col-sm-9">{{ ticket.assignee.username if ticket.assignee else 'Unassigned' }}</div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-3"><strong>Description:</strong></div>
+                    <div class="col-sm-9">
+                        <div class="p-3 bg-light rounded">
+                            {{ ticket.description | replace('\n', '<br>') | safe }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Update Ticket Form -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Update Ticket</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ update_form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ update_form.status.label(class="form-label") }}
+                                {{ update_form.status(class="form-select") }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ update_form.assigned_to.label(class="form-label") }}
+                                {{ update_form.assigned_to(class="form-select") }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        {{ update_form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Comments</h5>
+            </div>
+            <div class="card-body">
+                {% if comments %}
+                    {% for comment in comments %}
+                        <div class="mb-3 p-3 border rounded {% if comment.is_internal %}bg-warning-subtle{% endif %}">
+                            <div class="d-flex justify-content-between mb-2">
+                                <strong>
+                                    <i class="fas fa-user me-1"></i>{{ comment.author.username }}
+                                    {% if comment.is_internal %}
+                                        <span class="badge bg-warning ms-2">Internal</span>
+                                    {% endif %}
+                                </strong>
+                                <small class="text-muted">{{ comment.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                            </div>
+                            <div>{{ comment.content | replace('\n', '<br>') | safe }}</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No comments yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Add Comment Form -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-plus me-2"></i>Add Comment</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ comment_form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ comment_form.content(class="form-control", rows="4", placeholder="Enter your comment...") }}
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        {{ comment_form.is_internal(class="form-check-input") }}
+                        {{ comment_form.is_internal.label(class="form-check-label") }}
+                        <small class="form-text text-muted">Internal comments are only visible to administrators.</small>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin.tickets') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Tickets
+                        </a>
+                        {{ comment_form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    {% if ticket.status != 'closed' %}
+                        <button class="btn btn-success btn-sm" onclick="quickUpdate('closed')">
+                            <i class="fas fa-check me-1"></i>Close Ticket
+                        </button>
+                    {% endif %}
+                    {% if ticket.status == 'open' %}
+                        <button class="btn btn-warning btn-sm" onclick="quickUpdate('in_progress')">
+                            <i class="fas fa-play me-1"></i>Start Progress
+                        </button>
+                    {% endif %}
+                    {% if ticket.status == 'closed' %}
+                        <button class="btn btn-info btn-sm" onclick="quickUpdate('open')">
+                            <i class="fas fa-redo me-1"></i>Reopen Ticket
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Ticket Details</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>ID:</strong> #{{ ticket.id }}</p>
+                <p><strong>Creator:</strong> {{ ticket.creator.username }}</p>
+                <p><strong>Email:</strong> {{ ticket.creator.email }}</p>
+                <p><strong>Status:</strong> {{ ticket.status.title() }}</p>
+                <p><strong>Priority:</strong> {{ ticket.priority.title() }}</p>
+                <p><strong>Category:</strong> {{ ticket.category.replace('_', ' ').title() }}</p>
+                <p><strong>Created:</strong> {{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                <p><strong>Updated:</strong> {{ ticket.updated_at.strftime('%Y-%m-%d %H:%M') }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function quickUpdate(status) {
+    document.getElementById('status').value = status;
+    document.querySelector('input[name="submit"]').click();
+}
+</script>
+{% endblock %}

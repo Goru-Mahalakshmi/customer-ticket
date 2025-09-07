@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-user-plus me-2"></i>Assign Ticket #{{ ticket.id }}</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h5>{{ ticket.title }}</h5>
+                    <p class="text-muted">{{ ticket.description[:200] }}{% if ticket.description|length > 200 %}...{% endif %}</p>
+                </div>
+                
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.assigned_to.label(class="form-label") }}
+                        {{ form.assigned_to(class="form-select" + (" is-invalid" if form.assigned_to.errors else "")) }}
+                        {% if form.assigned_to.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.assigned_to.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin.ticket_detail', id=ticket.id) }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Back
+                        </a>
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

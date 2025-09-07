@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="text-center">
+            <h1 class="display-4 mb-4">
+                <i class="fas fa-headset text-primary"></i>
+                Customer Support System
+            </h1>
+            <p class="lead mb-4">
+                Get help when you need it. Our support team is here to assist you with any questions or issues.
+            </p>
+            
+            {% if not current_user.is_authenticated %}
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg me-md-2">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </a>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-user-plus me-2"></i>Create Account
+                    </a>
+                </div>
+            {% else %}
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a href="{{ url_for('user.dashboard') }}" class="btn btn-primary btn-lg me-md-2">
+                        <i class="fas fa-tachometer-alt me-2"></i>My Dashboard
+                    </a>
+                    <a href="{{ url_for('user.create_ticket') }}" class="btn btn-success btn-lg">
+                        <i class="fas fa-plus me-2"></i>Create Ticket
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Features Section -->
+        <div class="row mt-5">
+            <div class="col-md-4 text-center mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <i class="fas fa-ticket-alt fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Easy Ticket Creation</h5>
+                        <p class="card-text">Create support tickets quickly and easily with our intuitive interface.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <i class="fas fa-comments fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">Real-time Communication</h5>
+                        <p class="card-text">Stay updated with comments and status changes on your tickets.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <i class="fas fa-clock fa-3x text-warning mb-3"></i>
+                        <h5 class="card-title">Quick Resolution</h5>
+                        <p class="card-text">Our support team works efficiently to resolve your issues promptly.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
